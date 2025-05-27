@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG to JSON Hotspot Converter - Interactive Art Diary Solution</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #f7f7f7 0%, #e8e8e8 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: #fff;
+            border-radius: 20px;
+            padding: 60px 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 2px solid #2c2c2c;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 6px;
+                background: linear-gradient(90deg, #2c2c2c 0%, #4a4a4a 50%, #2c2c2c 100%);
+                animation: gentle-flow 6s ease-in-out infinite;
+            }
+
+        @keyframes gentle-flow {
+            0%, 100% {
+                opacity: 0.8;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 1.4rem;
+            color: #666;
+            margin-bottom: 30px;
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(44, 44, 44, 0.3);
+            animation: gentle-pulse 4s ease-in-out infinite;
+            border: 2px solid #4a4a4a;
+        }
+
+        @keyframes gentle-pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        .section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            border: 1px solid #d4d4d4;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+            .section:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .section h2 {
+                color: #1a1a1a;
+                margin-bottom: 25px;
+                font-size: 2.2rem;
+                font-weight: 600;
+                border-bottom: 3px solid #2c2c2c;
+                padding-bottom: 15px;
+                position: relative;
+            }
+
+                .section h2::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -3px;
+                    left: 0;
+                    width: 80px;
+                    height: 3px;
+                    background: linear-gradient(90deg, #2c2c2c, #4a4a4a);
+                    border-radius: 2px;
+                }
+
+            /* Organic corner decorations inspired by Deji's flowing style */
+            .section::before {
+                position: absolute;
+                top: 20px;
+                right: 25px;
+                font-size: 1.8rem;
+                opacity: 0.4;
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+
+            .section:hover::before {
+                opacity: 0.8;
+                transform: scale(1.1) rotate(5deg);
+            }
+
+            .section:nth-child(2)::before {
+                content: '🎯';
+            }
+
+            .section:nth-child(3)::before {
+                content: '✅';
+            }
+
+            .section:nth-child(4)::before {
+                content: '🎨';
+            }
+
+            .section:nth-child(5)::before {
+                content: '⚙️';
+            }
+
+            .section:nth-child(6)::before {
+                content: '🎬';
+            }
+
+            .section:nth-child(7)::before {
+                content: '📄';
+            }
+
+            .section:nth-child(8)::before {
+                content: '🔧';
+            }
+
+            .section:nth-child(9)::before {
+                content: '🚀';
+            }
+
+            .section:nth-child(10)::before {
+                content: '🎉';
+            }
+
+            .section h3 {
+                color: #2c2c2c;
+                margin: 35px 0 20px 0;
+                font-size: 1.5rem;
+                font-weight: 600;
+                position: relative;
+                padding-left: 20px;
+            }
+
+                .section h3::before {
+                    content: '▶';
+                    position: absolute;
+                    left: 0;
+                    color: #2c2c2c;
+                    font-size: 1rem;
+                }
+
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .requirement-card {
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 5px solid #2c2c2c;
+            border: 1px solid #d4d4d4;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .requirement-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(44, 44, 44, 0.12);
+            }
+
+            .requirement-card h4 {
+                color: #2c2c2c;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+
+                .requirement-card h4::before {
+                    content: "✓";
+                    margin-right: 10px;
+                    font-weight: bold;
+                    font-size: 1.2rem;
+                    animation: gentle-check 5s ease-in-out infinite;
+                }
+
+        @keyframes gentle-check {
+            0%, 95%, 100% {
+                transform: scale(1);
+            }
+
+            97% {
+                transform: scale(1.1);
+            }
+        }
+
+        .requirement-card p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .video-container {
+            margin: 30px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            border: 2px solid #d4d4d4;
+            transition: transform 0.3s ease;
+        }
+
+            .video-container:hover {
+                transform: scale(1.01);
+            }
+
+            .video-container video {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+
+        .video-description {
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            padding: 25px;
+            border-top: 1px solid #d4d4d4;
+        }
+
+            .video-description strong {
+                color: #2c2c2c;
+                display: block;
+                margin-bottom: 8px;
+                font-size: 1.1rem;
+            }
+
+        .code-block {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+            color: #f0f0f0;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 2px solid #4a4a4a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .cli-options {
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            border: 1px solid #d4d4d4;
+        }
+
+        .cli-option {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #2c2c2c;
+            border: 1px solid #d4d4d4;
+            transition: all 0.3s ease;
+        }
+
+            .cli-option:hover {
+                border-left-color: #1a1a1a;
+                transform: translateX(5px);
+            }
+
+            .cli-option code {
+                background: linear-gradient(135deg, #e8e8e8 0%, #f0f0f0 100%);
+                padding: 4px 10px;
+                border-radius: 6px;
+                font-family: 'SF Mono', Monaco, monospace;
+                font-weight: 600;
+                color: #2c2c2c;
+            }
+
+        /* Organic circular arrangement inspired by Deji's flowing compositions */
+        .color-mapping {
+            position: relative;
+            margin: 40px 0;
+            padding: 60px 20px;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .color-circle {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+        }
+
+        .color-item {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #d4d4d4;
+            transition: all 0.4s ease;
+            min-width: 200px;
+            cursor: pointer;
+        }
+
+            /* Circular positioning inspired by organic flow */
+            .color-item:nth-child(1) {
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .color-item:nth-child(2) {
+                top: 25%;
+                right: 0;
+                transform: translateX(20%);
+            }
+
+            .color-item:nth-child(3) {
+                bottom: 25%;
+                right: 0;
+                transform: translateX(20%);
+            }
+
+            .color-item:nth-child(4) {
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .color-item:nth-child(5) {
+                top: 50%;
+                left: 0;
+                transform: translate(-20%, -50%);
+            }
+
+            .color-item:hover {
+                transform: translateX(-50%) scale(1.05) !important;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+                z-index: 10;
+            }
+
+            .color-item:nth-child(2):hover {
+                transform: translateX(20%) scale(1.05) !important;
+            }
+
+            .color-item:nth-child(3):hover {
+                transform: translateX(20%) scale(1.05) !important;
+            }
+
+            .color-item:nth-child(5):hover {
+                transform: translate(-20%, -50%) scale(1.05) !important;
+            }
+
+        .color-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid #2c2c2c;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .color-item:hover .color-swatch {
+            transform: scale(1.2);
+        }
+
+        .color-item div strong {
+            color: #2c2c2c;
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .color-item div code {
+            font-size: 0.8rem;
+            color: #666;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .json-preview {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+            color: #f0f0f0;
+            padding: 30px;
+            border-radius: 12px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            margin: 25px 0;
+            border: 2px solid #4a4a4a;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+            .json-preview .json-key {
+                color: #a8a8a8;
+                font-weight: 600;
+            }
+
+            .json-preview .json-string {
+                color: #d4d4d4;
+            }
+
+            .json-preview .json-number {
+                color: #b8b8b8;
+            }
+
+            .json-preview .json-bracket {
+                color: #888;
+                font-weight: bold;
+            }
+
+        .highlight {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 5px solid #2c2c2c;
+            margin: 30px 0;
+            border: 1px solid #d4d4d4;
+            position: relative;
+        }
+
+            .highlight::before {
+                content: '💡';
+                position: absolute;
+                top: 15px;
+                right: 20px;
+                font-size: 1.5rem;
+                opacity: 0.6;
+            }
+
+        /* Improved Technical Features Layout */
+        .tech-features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 25px;
+        }
+
+        .tech-category {
+            background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #d4d4d4;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .tech-category:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(44, 44, 44, 0.08);
+            }
+
+            .tech-category h4 {
+                color: #2c2c2c;
+                font-size: 1.2rem;
+                font-weight: 600;
+                margin-bottom: 15px;
+                border-bottom: 2px solid #d4d4d4;
+                padding-bottom: 8px;
+            }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+            .feature-list li {
+                padding: 8px 0;
+                position: relative;
+                padding-left: 25px;
+                color: #555;
+                line-height: 1.5;
+            }
+
+                .feature-list li::before {
+                    content: "→";
+                    position: absolute;
+                    left: 0;
+                    color: #2c2c2c;
+                    font-weight: bold;
+                }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+            color: white;
+            padding: 35px 25px;
+            border-radius: 16px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(44, 44, 44, 0.3);
+            border: 2px solid #4a4a4a;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px) scale(1.02);
+                box-shadow: 0 8px 25px rgba(44, 44, 44, 0.4);
+            }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .section {
+                padding: 25px 20px;
+            }
+
+            .requirements-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .color-circle {
+                width: 200px;
+                height: 200px;
+            }
+
+            .color-item {
+                position: static !important;
+                transform: none !important;
+                margin-bottom: 15px;
+            }
+
+            .color-mapping {
+                flex-direction: column;
+                padding: 20px;
+                min-height: auto;
+            }
+
+            .tech-features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>SVG to JSON Hotspot Converter</h1>
+            <p class="subtitle">A tool born from creative necessity</p>
+            <div class="status-badge">✨ Fully Functional & Ready to Use</div>
+        </div>
+
+        <!-- Overview Section -->
+        <div class="section">
+            <h2>Project Overview</h2>
+            <p>This converter transforms your Affinity Designer SVG exports into the exact JSON format your Interactive Art Diary needs. Like drawing itself, it takes complex paths and makes them meaningful—extracting coordinates, identifying types by color, and creating structured data that brings your art to life digitally.</p>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <span class="stat-number">6</span>
+                    <span class="stat-label">Hotspots Extracted</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">5</span>
+                    <span class="stat-label">Hotspot Types</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Requirements Met</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requirements Verification -->
+        <div class="section">
+            <h2>Requirements Verification</h2>
+            <p>Here's how the converter addresses each requirement from your job specification:</p>
+
+            <div class="requirements-grid">
+                <div class="requirement-card">
+                    <h4>Extract Polygon Coordinates</h4>
+                    <p>Parses SVG path data and converts complex curves into precise polygon coordinates using industry-standard libraries.</p>
+                </div>
+                <div class="requirement-card">
+                    <h4>Color-Based Type Detection</h4>
+                    <p>Automatically identifies hotspot types (1-5) based on fill/stroke colors with support for both standard and custom color mappings.</p>
+                </div>
+                <div class="requirement-card">
+                    <h4>Layer Name Extraction</h4>
+                    <p>Extracts layer titles from Affinity Designer exports and intelligently derives page IDs from date patterns like "09 - 26".</p>
+                </div>
+                <div class="requirement-card">
+                    <h4>Structured JSON Output</h4>
+                    <p>Generates clean, validated JSON with proper hotspot IDs, coordinates, media URLs, and metadata exactly as specified.</p>
+                </div>
+                <div class="requirement-card">
+                    <h4>Global ID Numbering</h4>
+                    <p>Implements unified global numbering system (001, 002, 003...) for consistent hotspot identification across artworks.</p>
+                </div>
+                <div class="requirement-card">
+                    <h4>CMS Integration Ready</h4>
+                    <p>Modular design allows easy integration into build scripts, CMSs, or automated workflows with configurable parameters.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Mapping -->
+        <div class="section">
+            <h2>Hotspot Type Color Mapping</h2>
+            <p>The converter reads the language of color in your designs, automatically mapping each hue to its corresponding hotspot type:</p>
+
+            <div class="color-mapping">
+                <div class="color-circle">
+                    <div class="color-item">
+                        <div class="color-swatch" style="background-color: #0000FF;"></div>
+                        <div>
+                            <strong>Type 1: Audio Only</strong>
+                            <code>#0000FF</code> (Blue)
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background-color: #FFFF00;"></div>
+                        <div>
+                            <strong>Type 2: Audio + Link</strong>
+                            <code>#FFFF00</code> (Yellow)
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background-color: #FF0000;"></div>
+                        <div>
+                            <strong>Type 3: Audio + Image</strong>
+                            <code>#FF0000</code> (Red)
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background-color: #FFA500;"></div>
+                        <div>
+                            <strong>Type 4: Audio + Image + Link</strong>
+                            <code>#FFA500</code> (Orange)
+                        </div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background-color: #00FF00;"></div>
+                        <div>
+                            <strong>Type 5: Link Only</strong>
+                            <code>#00FF00</code> (Green)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CLI Options -->
+        <div class="section">
+            <h2>Command Line Interface</h2>
+            <p>The converter offers flexible CLI options for different workflows:</p>
+
+            <div class="cli-options">
+                <div class="cli-option">
+                    <strong><code>-i, --input &lt;path&gt;</code></strong><br>
+                    Specify input SVG file path (default: input/MVP_hotspots.svg)
+                </div>
+                <div class="cli-option">
+                    <strong><code>-o, --output &lt;path&gt;</code></strong><br>
+                    Set output JSON file path (default: src/data/hotspots.json)
+                </div>
+                <div class="cli-option">
+                    <strong><code>-p, --page-id &lt;id&gt;</code></strong><br>
+                    Override page ID (e.g., "2019-07-17") instead of auto-extraction
+                </div>
+                <div class="cli-option">
+                    <strong><code>-b, --base-url &lt;url&gt;</code></strong><br>
+                    Set base URL for media files (default: https://example.com)
+                </div>
+                <div class="cli-option">
+                    <strong><code>-w, --watch</code></strong><br>
+                    Watch for file changes and automatically reconvert
+                </div>
+            </div>
+
+            <div class="highlight">
+                <strong>Basic Usage:</strong>
+                <div class="code-block">npm run convert</div>
+                <strong>Custom Usage:</strong>
+                <div class="code-block">node scripts/svg-converter.js -i custom.svg -o output.json -p "2024-03-15"</div>
+            </div>
+        </div>
+
+        <!-- Video Demonstrations -->
+        <div class="section">
+            <h2>Live Demonstrations</h2>
+
+            <h3>1. Script Execution & File Generation</h3>
+            <div class="video-container">
+                <video controls>
+                    <source src="assets/01_run-script.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-description">
+                    <strong>What you're seeing:</strong> Live execution of the converter showing console output and real-time JSON file generation in the project directory. The split screen shows both the command execution and the resulting hotspots.json file appearing in the data folder.
+                </div>
+            </div>
+
+            <h3>2. JSON Output Preview & Validation</h3>
+            <div class="video-container">
+                <video controls>
+                    <source src="assets/02_json-preview.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-description">
+                    <strong>What you're seeing:</strong> Quick preview of the generated JSON structure in Visual Studio Code, followed by a clean console output using jq filter showing the first two coordinates of each hotspot for easy validation.
+                </div>
+            </div>
+
+            <h3>3. Frontend Integration Validation</h3>
+            <div class="video-container">
+                <video controls>
+                    <source src="assets/03_ui-demo.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-description">
+                    <strong>What you're seeing:</strong> The React application loading and displaying the zebra artwork with interactive hotspots perfectly positioned using the extracted coordinates. This proves the coordinate extraction is pixel-perfect and ready for production use.
+                </div>
+            </div>
+        </div>
+
+        <!-- JSON Output Sample -->
+        <div class="section">
+            <h2>Sample JSON Output</h2>
+            <p>Here's exactly what the converter produces for each hotspot:</p>
+
+            <div class="json-preview">
+                {
+                <span class="json-key">"id"</span>: <span class="json-string">"hotspot_audio_image_link_001"</span>,
+                <span class="json-key">"type"</span>: <span class="json-string">"audio_image_link"</span>,
+                <span class="json-key">"shape"</span>: <span class="json-string">"multipolygon"</span>,
+                <span class="json-key">"coordinates"</span>: <span class="json-bracket">[</span>
+                <span class="json-bracket">[</span>
+                <span class="json-bracket">[</span><span class="json-number">714</span>, <span class="json-number">4714</span><span class="json-bracket">]</span>, <span class="json-bracket">[</span><span class="json-number">718</span>, <span class="json-number">4714</span><span class="json-bracket">]</span>, <span class="json-bracket">[</span><span class="json-number">722</span>, <span class="json-number">4712</span><span class="json-bracket">]</span>,
+                <span class="json-bracket">[</span><span class="json-number">747</span>, <span class="json-number">4697</span><span class="json-bracket">]</span>, <span class="json-bracket">[</span><span class="json-number">764</span>, <span class="json-number">4690</span><span class="json-bracket">]</span>, <span class="json-bracket">[</span><span class="json-number">814</span>, <span class="json-number">4701</span><span class="json-bracket">]</span>,
+                <span style="color: #888;">// ... additional coordinates</span>
+                <span class="json-bracket">]</span>
+                <span class="json-bracket">]</span>,
+                <span class="json-key">"page_id"</span>: <span class="json-string">"09-26"</span>,
+                <span class="json-key">"title"</span>: <span class="json-string">"audio image link Hotspot 1"</span>,
+                <span class="json-key">"description"</span>: <span class="json-string">"Excerpt from 09 - 26 — hotspot 1"</span>,
+                <span class="json-key">"audioUrl"</span>: <span class="json-string">"https://example.com/audio/audio_image_link_001.mp3"</span>,
+                <span class="json-key">"imageUrl"</span>: <span class="json-string">"https://example.com/images/audio_image_link_001.jpg"</span>,
+                <span class="json-key">"linkUrl"</span>: <span class="json-string">"https://example.com/diary/audio_image_link_001"</span>
+                }
+            </div>
+        </div>
+
+        <!-- Technical Features -->
+        <div class="section">
+            <h2>Technical Features</h2>
+
+            <div class="tech-features-grid">
+                <div class="tech-category">
+                    <h4>Advanced Path Processing</h4>
+                    <ul class="feature-list">
+                        <li>Handles complex SVG paths including curves, arcs, and multipolygons</li>
+                        <li>Automatically converts relative commands to absolute coordinates</li>
+                        <li>Merges connected subpaths for accurate shape representation</li>
+                        <li>Rounds coordinates to integers for optimal performance</li>
+                    </ul>
+                </div>
+
+                <div class="tech-category">
+                    <h4>Smart Color Detection</h4>
+                    <ul class="feature-list">
+                        <li>Supports both fill and stroke color extraction</li>
+                        <li>Converts RGB values to hex for consistent mapping</li>
+                        <li>Fallback color mapping for custom Affinity Designer exports</li>
+                        <li>Case-insensitive color matching</li>
+                    </ul>
+                </div>
+
+                <div class="tech-category">
+                    <h4>Intelligent Metadata Extraction</h4>
+                    <ul class="feature-list">
+                        <li>Extracts layer names from SVG group elements</li>
+                        <li>Auto-generates page IDs from date patterns</li>
+                        <li>Creates descriptive titles and hover text</li>
+                        <li>Generates media URLs based on hotspot type</li>
+                    </ul>
+                </div>
+
+                <div class="tech-category">
+                    <h4>Production Ready</h4>
+                    <ul class="feature-list">
+                        <li>Comprehensive error handling and validation</li>
+                        <li>Modular design for CMS integration</li>
+                        <li>Promise-based API for build scripts</li>
+                        <li>Configurable output formatting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Guide -->
+        <div class="section">
+            <h2>Integration Options</h2>
+
+            <h3>Standalone CLI Tool</h3>
+            <p>Perfect for manual conversion of individual artworks or batch processing.</p>
+            <div class="code-block">node scripts/svg-converter.js -i artwork.svg -o hotspots.json</div>
+
+            <h3>CMS Integration</h3>
+            <p>Import as a module for automated workflows:</p>
+            <div class="code-block">
+                import convertSvgToHotspots from './svg-converter.js';
+
+                const hotspots = await convertSvgToHotspots('artwork.svg', {
+                pageId: '2024-03-15',
+                baseUrl: 'https://yoursite.com'
+                });
+            </div>
+
+            <h3>Watch Mode for Development</h3>
+            <p>Automatically reconvert when SVG files change:</p>
+            <div class="code-block">node scripts/svg-converter.js --watch</div>
+        </div>
+
+        <!-- Conclusion -->
+        <div class="section">
+            <h2>Ready for Your Interactive Art Diary</h2>
+            <p>This converter understands the intersection of art and technology. Built with the same attention to detail that goes into each page of your diary, it delivers:</p>
+
+            <div class="highlight">
+                <ul class="feature-list">
+                    <li><strong>Accurate polygon coordinate extraction</strong> from complex SVG paths</li>
+                    <li><strong>Intelligent hotspot type identification</strong> based on color mapping (Types 1-5)</li>
+                    <li><strong>Clean, structured JSON output</strong> exactly matching your specification</li>
+                    <li><strong>Smart layer name extraction</strong> and intelligent page ID generation</li>
+                    <li><strong>Flexible CLI options</strong> for different workflows</li>
+                    <li><strong>Seamless integration</strong> with your React frontend application</li>
+                </ul>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px; font-size: 1.3rem; color: #1a1a1a; font-weight: 600;">
+                The converter is production-ready and will scale perfectly with your vision of 50+ artworks and 10,000+ hotspots. 🎨
+            </p>
+        </div>
+    </div>
+</body>
+</html>
